@@ -5,12 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class userpengguna extends Model
+class feedback extends Model
 {
     use HasFactory;
-
-    protected $fillable = ['name', 'phone', 'email', 'password', 'position'];
-
-    public $timestamps = true;
-
 }

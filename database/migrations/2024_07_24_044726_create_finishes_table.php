@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('modules', function (Blueprint $table) {
-            $table->id()->primary();
-            $table->string('name', 255);
+        Schema::create('finishes', function (Blueprint $table) {
+            $table->date('date_of_completion');
+            $table->boolean('confirmed_to_pic')->default(null);
+            $table->boolean('wait_for_approval')->default(null);
             $table->timestamps();
         });
     }
@@ -23,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('modules');
+        Schema::dropIfExists('finishes');
     }
 };

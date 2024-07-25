@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\UserpenggunaResource\Pages;
-use App\Filament\Resources\UserpenggunaResource\RelationManagers;
-use App\Models\Userpengguna;
+use App\Filament\Resources\UserResource\Pages;
+use App\Filament\Resources\UserResource\RelationManagers;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -12,10 +12,11 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Hash;
 
-class UserpenggunaResource extends Resource
+class UserResource extends Resource
 {
-    protected static ?string $model = Userpengguna::class;
+    protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -24,23 +25,27 @@ class UserpenggunaResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
-                    ->maxLength(255)
-                    ->default(null),
-                Forms\Components\TextInput::make('phone')
-                    ->tel()
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
                     ->email()
-                    ->maxLength(255)
-                    ->default(null),
+                    ->required()
+                    ->maxLength(255),
                 Forms\Components\TextInput::make('password')
                     ->password()
+                    ->required()
+                    ->minLength(8)
+                    ->required(fn (string $context): bool => $context === 'create') // Wajib saat pembuatan, opsional saat update
+                    ->dehydrateStateUsing(fn ($state) => Hash::make($state)),
+                Forms\Components\TextInput::make('phone')
+                    ->tel()
                     ->maxLength(255)
                     ->default(null),
-                Forms\Components\TextInput::make('position')
-                    ->maxLength(255)
-                    ->default(null),
+                    Forms\Components\Select::make('position')
+                    ->options(array_combine(User::position, User::position))
+                    ->required(),
+                Forms\Components\Toggle::make('approved')
+                    ->required(),
             ]);
     }
 
@@ -50,12 +55,16 @@ class UserpenggunaResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('phone')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('position')
+                Tables\Columns\TextColumn::make('email_verified_at')
+                    ->dateTime()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('phone')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('position'),
+                Tables\Columns\IconColumn::make('approved')
+                    ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -70,6 +79,7 @@ class UserpenggunaResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -88,9 +98,9 @@ class UserpenggunaResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListUserpenggunas::route('/'),
-            'create' => Pages\CreateUserpengguna::route('/create'),
-            'edit' => Pages\EditUserpengguna::route('/{record}/edit'),
+            'index' => Pages\ListUsers::route('/'),
+            'create' => Pages\CreateUser::route('/create'),
+            'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }
 }

@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('modules', function (Blueprint $table) {
-            $table->id()->primary();
-            $table->string('name', 255);
+        Schema::create('feedback', function (Blueprint $table) {
+            $table->id('id_feedback');
+            $table->unsignedBigInteger('id_tiket');
+            $table->text('is_done_in_version__or_change');
+            $table->string('doc_testing')->nullable();
+            $table->date('required_feedback_date');
             $table->timestamps();
         });
     }
@@ -23,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('modules');
+        Schema::dropIfExists('feedback');
     }
 };
